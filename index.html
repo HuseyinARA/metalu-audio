@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Microphone Metalu Plast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; background: #1a1a1a; color: #fff; overflow: hidden; }
+    .mic-icon { font-size: 50px; color: #dc3545; animation: pulse 1.5s infinite; margin-top: 10px; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
+    .status { font-size: 16px; font-weight: bold; color: #ffc107; margin-top: 10px; }
+    .text-preview { font-style: italic; color: #aaa; font-size: 14px; margin-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  </style>
+</head>
+<body>
+  <div class="mic-icon">🎙️</div>
+  <div class="status" id="status">Écoute en cours... Parlez maintenant.</div>
+  <div class="text-preview" id="result">""</div>
+
+  <script>
+    window.onload = function() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Le dictaphone n'est pas supporté sur ce navigateur. Utilisez Google Chrome.");
+        window.close();
+        return;
+      }
+      
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'fr-FR';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      // Lancement automatique du micro
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const texteCapture = event.results[0][0].transcript;
+        document.getElementById('result').innerText = '"' + texteCapture + '"';
+        document.getElementById('status').innerText = "✅ Capturé ! Transmission...";
+        document.getElementById('status').style.color = "#28a745";
+        
+        // 🚀 Transmission directe à la WebApp Google fermée dans son Iframe
+        if (window.opener) {
+          window.opener.postMessage({ type: 'METALU_VOICE_INPUT', text: texteCapture }, '*');
+        }
+        setTimeout(() => { window.close(); }, 600);
+      };
+
+      recognition.onerror = function(event) {
+        document.getElementById('status').innerText = "❌ Échec (Vérifiez l'accès au micro)";
+        document.getElementById('status').style.color = "#dc3545";
+        setTimeout(() => { window.close(); }, 2000);
+      };
+
+      recognition.onend = function() {
+        setTimeout(() => { window.close(); }, 1500);
+      };
+    };
+  </script>
+</body>
+</html>
