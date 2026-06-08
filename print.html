@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Impression Fiche Metalu Plast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* On intègre les styles d'impression d'origine pour un rendu identique */
+    body { background-color: white; margin: 0; padding: 5mm; font-family: 'Segoe UI', sans-serif; color: #333; }
+    .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0056b3; padding-bottom: 5px; margin-bottom: 10px; }
+    .print-logo { max-height: 80px; object-fit: contain;}
+    .print-title { text-align: right; }
+    .print-title h2 { margin: 0; font-size: 24px; color: #0056b3; text-transform: uppercase;}
+    .print-title p { margin: 0; font-size: 14px; color: #555; }
+    .print-info-box { background-color: #f8f9fa; border: 1px solid #ddd; padding: 6px 10px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 16px;}
+    .print-info-box p { margin: 0; }
+    .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+    .print-table th, .print-table td { border: 1px solid #aaa; padding: 4px 6px; text-align: left; vertical-align: middle;}
+    .print-table th { background-color: #0056b3; color: white; font-weight: bold; }
+    tr { page-break-inside: avoid; }
+  </style>
+</head>
+<body>
+
+  <div id="zoneFicheRendue">🔄 Génération du document d'impression...</div>
+
+  <script>
+    window.onload = function() {
+      if (window.opener) {
+        // 1. Dès que la page s'ouvre, elle demande le code HTML de la fiche à l'application Google mère
+        window.opener.postMessage({ type: 'GET_PRINT_HTML' }, '*');
+      }
+    };
+
+    // 2. Réception du HTML envoyé par la tablette
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'SEND_PRINT_HTML') {
+        document.getElementById('zoneFicheRendue').innerHTML = event.data.html;
+        
+        // 3. Lancement immédiat du pop-up d'impression WebView
+        setTimeout(function() {
+          window.print();
+        }, 300);
+      }
+    });
+  </script>
+</body>
+</html>
